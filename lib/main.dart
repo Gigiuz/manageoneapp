@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'pages/tdee.dart'; 
+import 'pages/tdee.dart';
+// Importa le altre pagine quando saranno disponibili
+import 'pages/trainingweightscalculator.dart';
+// import 'pages/nutrition.dart';
+// import 'pages/workout.dart';
+// import 'pages/settings.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,50 +13,188 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ManageOne',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Manage One'),
+      home: const SharedScaffold(
+        body: MyHomePageContent(),
+        title: 'Manage One',
+        currentIndex: 0, // Home page è l'indice 0
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
+// Classe base condivisa per tutte le pagine
+class SharedScaffold extends StatelessWidget {
+  final Widget body;
   final String title;
+  final int currentIndex;
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  const SharedScaffold({
+    super.key,
+    required this.body,
+    required this.title,
+    required this.currentIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
- return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(title),
       ),
-      body: Center(
-        child: ElevatedButton(
-          child: const Text('Apri Calcolatore TDEE'),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => TdeePage()),
-            );
-          },
+      drawer: _buildDrawer(context),
+      body: body,
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person,
+                    size: 40,
+                    color: Colors.amber,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'ManageOne',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+                Text(
+                  'La tua app di gestione personale',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildDrawerItem(
+            context,
+            'Home',
+            Icons.home,
+            0,
+            () => _navigateToPage(
+                context, const MyHomePageContent(), 'Manage One', 0),
+          ),
+          _buildDrawerItem(
+            context,
+            'Calcolatore TDEE',
+            Icons.calculate,
+            1,
+            () => _navigateToPage(
+                context, const TdeePage(), 'Calcolatore TDEE', 1),
+          ),
+          _buildDrawerItem(
+            context,
+            'Allenamento',
+            Icons.fitness_center,
+            2,
+            () => _navigateToPage(
+                          context, const TrainingWeightCalculator(), 'Calcolo percentuali allenamento', 2),
+          ),
+          const Divider(),
+          _buildDrawerItem(
+            context,
+            'Impostazioni',
+            Icons.settings,
+            5,
+            () {
+              // Sostituire con la navigazione alla pagina impostazioni quando disponibile
+              Navigator.pop(context);
+              // _navigateToPage(context, const SettingsPage(), 'Impostazioni', 5);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper per costruire le voci di menu con evidenziazione della pagina corrente
+  Widget _buildDrawerItem(BuildContext context, String title, IconData icon,
+      int index, VoidCallback onTap) {
+    final bool isSelected = index == currentIndex;
+
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isSelected ? Theme.of(context).colorScheme.primary : null,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? Theme.of(context).colorScheme.primary : null,
         ),
+      ),
+      selected: isSelected,
+      onTap: onTap,
+    );
+  }
+
+  // Helper per la navigazione
+  void _navigateToPage(
+      BuildContext context, Widget page, String title, int index) {
+    Navigator.pop(context); // Chiude il drawer
+
+    if (index == currentIndex)
+      return; // Se siamo già nella pagina richiesta, non facciamo nulla
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SharedScaffold(
+          body: page,
+          title: title,
+          currentIndex: index,
+        ),
+      ),
+    );
+  }
+}
+
+// Contenuto della Home Page
+class MyHomePageContent extends StatelessWidget {
+  const MyHomePageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Benvenuto in ManageOne',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20)
+        ],
       ),
     );
   }
