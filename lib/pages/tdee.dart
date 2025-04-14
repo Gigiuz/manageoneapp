@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manageoneapp/main.dart';
 
 class TdeePage extends StatefulWidget {
   const TdeePage({super.key});
@@ -9,7 +10,6 @@ class TdeePage extends StatefulWidget {
 
 class _TdeePageState extends State<TdeePage> {
   String? _gender;
-  double? _weight;
   String? _lifestyle;
   final _formKey = GlobalKey<FormState>();
   final _weightController = TextEditingController();
@@ -111,14 +111,7 @@ class _TdeePageState extends State<TdeePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calcolatore TDEE'),
-        centerTitle: true,
-        backgroundColor: Colors.amber,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
+      
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -310,11 +303,22 @@ class _TdeePageState extends State<TdeePage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  TextButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back),
-                    label: const Text('Torna alla Home'),
-                  ),
+TextButton.icon(
+  onPressed: () {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SharedScaffold(
+          body: MyHomePageContent(),
+          title: 'Manage One',
+          currentIndex: 0, // Indice della Home
+        ),
+      ),
+    );
+  },
+  icon: const Icon(Icons.arrow_back),
+  label: const Text('Torna alla Home'),
+),
                   const SizedBox(height: 24),
                 ],
               ),
