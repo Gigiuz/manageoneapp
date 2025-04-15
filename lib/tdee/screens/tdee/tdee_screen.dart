@@ -303,22 +303,22 @@ class _TdeePageState extends State<TdeePage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-TextButton.icon(
-  onPressed: () {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SharedScaffold(
-          body: MyHomePageContent(),
-          title: 'Manage One',
-          currentIndex: 0, // Indice della Home
-        ),
-      ),
-    );
-  },
-  icon: const Icon(Icons.arrow_back),
-  label: const Text('Torna alla Home'),
-),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SharedScaffold(
+                            body: MyHomePageContent(),
+                            title: 'Manage One',
+                            currentIndex: 0, // Indice della Home
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('Torna alla Home'),
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),

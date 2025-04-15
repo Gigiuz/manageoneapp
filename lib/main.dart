@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'tdee/screens/tdee/tdee_screen.dart';
 // Importa le altre pagine quando saranno disponibili
-import 'trainingweightscalculator.dart';
+import 'trainingweightscalculator/screens/trainingweightcalculator/trainingweightscalculator.dart';
 // import 'pages/nutrition.dart';
 // import 'pages/workout.dart';
 // import 'pages/settings.dart';
@@ -72,11 +72,6 @@ class SharedScaffold extends StatelessWidget {
                   radius: 30,
                   backgroundColor: Colors.white,
                   backgroundImage: AssetImage('assets/icons/mainIcon.png'),
-                  // child: Icon(
-                  //   Icons.person,
-                  //   size: 40,
-                  //   color: Colors.amber,
-                  // ),
                 ),
                 SizedBox(height: 10),
                 Text(
