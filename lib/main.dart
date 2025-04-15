@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'pages/tdee.dart';
+import 'tdee/screens/tdee/tdee_screen.dart';
 // Importa le altre pagine quando saranno disponibili
-import 'pages/trainingweightscalculator.dart';
+import 'trainingweightscalculator.dart';
 // import 'pages/nutrition.dart';
 // import 'pages/workout.dart';
 // import 'pages/settings.dart';
@@ -71,11 +71,12 @@ class SharedScaffold extends StatelessWidget {
                 CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    size: 40,
-                    color: Colors.amber,
-                  ),
+                  backgroundImage: AssetImage('assets/icons/mainIcon.png'),
+                  // child: Icon(
+                  //   Icons.person,
+                  //   size: 40,
+                  //   color: Colors.amber,
+                  // ),
                 ),
                 SizedBox(height: 10),
                 Text(
@@ -86,7 +87,7 @@ class SharedScaffold extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'La tua app di gestione personale',
+                  'La tua app per la gestione lavoro',
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
