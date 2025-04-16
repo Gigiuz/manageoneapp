@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:manageoneapp/utils/assets.dart';
 import 'package:manageoneapp/main.dart';
 
-  final Set<String> activityMultipliers = {
-    'Sedentario',
-    'Leggermente attivo',
-    'Attivo',
-    'Molto attivo',
+  final Set<String> rms = {
+    '1RM',
+    '5RM',
+    '10RM',
   };
 
 class _SectionTitle extends StatelessWidget {
@@ -41,6 +40,7 @@ class TrainingWeightCalculator extends StatefulWidget {
 class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
   String? _typeTraining;
   String? _typeTrainingError;
+  String? _rm;
 
   @override
   Widget build(BuildContext context) {
@@ -75,78 +75,6 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
-                      // const Text(
-                      //   'Questa funzionalità ti permetterà di calcolare i pesi ottimali per i tuoi allenamenti in base alle tue capacità e obiettivi.',
-                      //   textAlign: TextAlign.center,
-                      //   style: TextStyle(fontSize: 16),
-                      // ),
-                      // const SizedBox(height: 32),
-                      // Container(
-                      //   padding: const EdgeInsets.all(16),
-                      //   decoration: BoxDecoration(
-                      //     color: Theme.of(context).colorScheme.surfaceVariant,
-                      //     borderRadius: BorderRadius.circular(12),
-                      //     border: Border.all(
-                      //       color: Theme.of(context)
-                      //           .colorScheme
-                      //           .outline
-                      //           .withOpacity(0.5),
-                      //     ),
-                      //   ),
-                      //   child: Column(
-                      //     children: [
-                      //       Text(
-                      //         'Funzionalità previste:',
-                      //         style: Theme.of(context)
-                      //             .textTheme
-                      //             .titleMedium
-                      //             ?.copyWith(
-                      //               fontWeight: FontWeight.bold,
-                      //             ),
-                      //       ),
-                      //       const SizedBox(height: 16),
-                      //       _buildFeatureItem(
-                      //           context, 'Calcolo del peso massimale (1RM)'),
-                      //       _buildFeatureItem(context,
-                      //           'Calcolo dei pesi per serie progressive'),
-                      //       _buildFeatureItem(
-                      //           context, 'Suggerimenti per incrementi di peso'),
-                      //       _buildFeatureItem(
-                      //           context, 'Tracking dei progressi nel tempo'),
-                      //     ],
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 40),
-                      // Container(
-                      //   padding: const EdgeInsets.symmetric(
-                      //       vertical: 8, horizontal: 16),
-                      //   decoration: BoxDecoration(
-                      //     color: Theme.of(context)
-                      //         .colorScheme
-                      //         .primary
-                      //         .withOpacity(0.1),
-                      //     borderRadius: BorderRadius.circular(20),
-                      //   ),
-                      //   child: Row(
-                      //     mainAxisSize: MainAxisSize.min,
-                      //     children: [
-                      //       Icon(
-                      //         Icons.access_time,
-                      //         color: Theme.of(context).colorScheme.primary,
-                      //         size: 18,
-                      //       ),
-                      //       const SizedBox(width: 8),
-                      //       Text(
-                      //         'In fase di sviluppo',
-                      //         style: TextStyle(
-                      //           fontWeight: FontWeight.bold,
-                      //           color: Theme.of(context).colorScheme.primary,
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -217,7 +145,7 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
                   ),
                   const SizedBox(height: 24),
 
-                  const _SectionTitle(title: 'Stile di vita'),
+                  const _SectionTitle(title: 'Per quante ripetizioni hai sollevato il peso che hai scritto sopra?'),
                   Card(
                     elevation: 2,
                     margin: const EdgeInsets.symmetric(vertical: 8),
@@ -228,20 +156,20 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
                       padding: const EdgeInsets.all(16),
                       child: DropdownButtonFormField<String>(
                         decoration: InputDecoration(
-                          labelText: 'Livello di attività',
+                          labelText: 'Seleziona il n. di ripetizioni',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           prefixIcon: const Icon(Icons.fitness_center),
                         ),
                         // value: _lifestyle,
-                        items: activityMultipliers.keys.map((label) {
+                        items: rms.map((rm) {
                           return DropdownMenuItem(
-                            value: label,
-                            child: Text(label),
+                            value: rm,
+                            child: Text(rm),
                           );
                         }).toList(),
-                        onChanged: (value) => setState(() => _lifestyle = value),
+                        onChanged: (value) => setState(() => _rm = value),
                         validator: (value) =>
                             value == null ? 'Seleziona uno stile di vita' : null,
                       ),
