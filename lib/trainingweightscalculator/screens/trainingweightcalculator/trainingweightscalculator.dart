@@ -2,33 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:manageoneapp/utils/assets.dart';
 import 'package:manageoneapp/main.dart';
 
-  final Set<String> rms = {
-    '1RM',
-    '5RM',
-    '10RM',
-  };
+// Import the extracted components
+import '../../widgets/section_title.dart';
+import '../../widgets/training_option.dart';
+import '../../widgets/weight_calculation_service.dart';
+import '../../widgets/weight_calculator_dialog.dart';
+import '../../widgets/constants.dart';
 
-class _SectionTitle extends StatelessWidget {
-  final String title;
-
-  const _SectionTitle({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-      ),
-    );
-  }
-}
-
+/// A widget that calculates training weights based on user input.
 class TrainingWeightCalculator extends StatefulWidget {
   const TrainingWeightCalculator({super.key});
 
@@ -38,258 +19,309 @@ class TrainingWeightCalculator extends StatefulWidget {
 }
 
 class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
+  // Form state
   String? _typeTraining;
   String? _typeTrainingError;
   String? _rm;
+  String? _rmError;
+  
+  // Controller for the weight input field
+  final TextEditingController _weightController = TextEditingController();
+  String? _weightError;
+  
+  // Global key for form validation
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _weightController.dispose();
+    super.dispose();
+  }
+
+  /// Validates all form fields and returns true if all are valid.
+  bool _validateFields() {
+    bool isValid = true;
+    
+    // Validate training type
+    if (_typeTraining == null) {
+      setState(() {
+        _typeTrainingError = AppConstants.errorSelectTrainingType;
+      });
+      isValid = false;
+    }
+    
+    // Validate weight
+    if (_weightController.text.isEmpty) {
+      setState(() {
+        _weightError = AppConstants.errorEnterWeight;
+      });
+      isValid = false;
+    } else {
+      final number = double.tryParse(_weightController.text);
+      if (number == null || number <= 0) {
+        setState(() {
+          _weightError = AppConstants.errorEnterValidNumber;
+        });
+        isValid = false;
+      }
+    }
+    
+    // Validate RM selection
+    if (_rm == null) {
+      setState(() {
+        _rmError = AppConstants.errorSelectRepetitions;
+      });
+      isValid = false;
+    }
+    
+    return isValid;
+  }
+  
+  /// Calculates training weights and shows results dialog.
+  void _calculateAndShowResults() {
+    if (_validateFields()) {
+      final weight = double.parse(_weightController.text);
+      
+      // Calculate training weights based on input
+      final results = WeightCalculationService.calculateTrainingWeights(
+        weight: weight,
+        rmType: _rm!,
+      );
+      
+      // Show results dialog
+      WeightCalculatorResultsDialog.show(
+        context: context,
+        results: results,
+        rmType: _rm!,
+        weight: _weightController.text,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.fitness_center,
-                        size: 80,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Calcolatore Pesi Allenamento',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _TrainingOption(
-                            label: 'Streetlifting',
-                            value: 'streetlifting',
-                            groupValue: _typeTraining,
-                            color: Colors.black,
-                            // icon: Icons.fitness_center, //qui voglio usarla
-                            iconImage: Image(image: Assets.logo,
-                        width: 80, height: 80),
-                            onChanged: (value) => setState(() {
-                              _typeTraining = value;
-                              _typeTrainingError = null;
-                            }),
-                          ),
-                          const SizedBox(width: 16),
-                          _TrainingOption(
-                            label: 'Bilanciere/Pesi',
-                            value: 'external_weights',
-                            groupValue: _typeTraining,
-                            color: Colors.black,
-                            
-                            icon: Icons.fitness_center,
-                            onChanged: (value) => setState(() {
-                              _typeTraining = value;
-                              _typeTrainingError = null;
-                            }),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                  const _SectionTitle(title: 'Peso sollevato'),
-                  //MARK: - WeightInput
-                  Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: TextFormField(
-                        // controller: _weightController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Peso sollevato (kg)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          prefixIcon: const Icon(Icons.monitor_weight),
-                          suffixText: 'kg',
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Inserisci il peso';
-                          }
-                          final number = double.tryParse(value);
-                          if (number == null || number <= 0) {
-                            return 'Inserisci un numero valido';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _SectionTitle(title: 'Per quante ripetizioni hai sollevato il peso che hai scritto sopra?'),
-                  Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: DropdownButtonFormField<String>(
-                        decoration: InputDecoration(
-                          labelText: 'Seleziona il n. di ripetizioni',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          prefixIcon: const Icon(Icons.fitness_center),
-                        ),
-                        // value: _lifestyle,
-                        items: rms.map((rm) {
-                          return DropdownMenuItem(
-                            value: rm,
-                            child: Text(rm),
-                          );
-                        }).toList(),
-                        onChanged: (value) => setState(() => _rm = value),
-                        validator: (value) =>
-                            value == null ? 'Seleziona uno stile di vita' : null,
-                      ),
-                    ),
-                  ),
-
-
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SharedScaffold(
-                            body: MyHomePageContent(),
-                            title: 'Manage One',
-                            currentIndex: 0, // Indice della Home
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                    label: const Text('Torna alla Home'),
-                  ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeader(context),
+                _buildTrainingTypeSection(),
+                const SizedBox(height: 24),
+                _buildWeightInputSection(),
+                const SizedBox(height: 24),
+                _buildRepetitionsSection(),
+                const SizedBox(height: 32),
+                _buildCalculateButton(),
+                const SizedBox(height: 24),
+                _buildHomeButton(context),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildFeatureItem(BuildContext context, String text) {
+  /// Builds the header section with title and icon.
+  Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Row(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.check_circle_outline,
+            Icons.fitness_center,
+            size: 80,
             color: Theme.of(context).colorScheme.primary,
-            size: 20,
           ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(text)),
+          const SizedBox(height: 24),
+          Text(
+            'Calcolatore Pesi Allenamento',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
-}
 
-//MARK: - TrainingOption
-class _TrainingOption extends StatelessWidget {
-  final String label;
-  final String value;
-  final String? groupValue;
-  final Function(String?)? onChanged;
-  final Color color;
-  final IconData? icon; // può essere null
-  final Image? iconImage; // aggiunto per icone personalizzate
-  final String? assetImagePath; // aggiunto per asset personalizzati
-
-  const _TrainingOption({
-    required this.label,
-    required this.value,
-    required this.groupValue,
-    required this.onChanged,
-    required this.color,
-    this.icon,
-    this.iconImage,
-    this.assetImagePath,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: () => onChanged?.call(value),
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          decoration: BoxDecoration(
-            color: groupValue == value
-                ? color.withOpacity(0.1)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: groupValue == value ? color : Colors.grey.shade300,
-              width: 2,
+  /// Builds the training type selection section.
+  Widget _buildTrainingTypeSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Tipo di allenamento'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TrainingOption(
+              label: 'Streetlifting',
+              value: 'streetlifting',
+              groupValue: _typeTraining,
+              color: Colors.black,
+              iconImage: Image(image: Assets.logo, width: 80, height: 80),
+              onChanged: (value) => setState(() {
+                _typeTraining = value;
+                _typeTrainingError = null;
+              }),
+            ),
+            const SizedBox(width: 16),
+            TrainingOption(
+              label: 'Bilanciere/Pesi',
+              value: 'external_weights',
+              groupValue: _typeTraining,
+              color: Colors.black,
+              icon: Icons.fitness_center,
+              onChanged: (value) => setState(() {
+                _typeTraining = value;
+                _typeTrainingError = null;
+              }),
+            ),
+          ],
+        ),
+        if (_typeTrainingError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+            child: Text(
+              _typeTrainingError!,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 12,
+              ),
             ),
           ),
-          child: Column(
-            children: [
-              if (iconImage != null)
-                SizedBox(width: 32, height: 32, child: iconImage!)
-              else if (assetImagePath != null)
-                Image.asset(assetImagePath!, width: 32, height: 32, color: Colors.black)
-              else if (icon != null)
-              Icon(icon, color: color, size: 32),
-              // Icon(icon, color: color, size: 32),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: groupValue == value ? color : Colors.black87,
-                  fontWeight:
-                      groupValue == value ? FontWeight.bold : FontWeight.normal,
+      ],
+    );
+  }
+
+  /// Builds the weight input section.
+  Widget _buildWeightInputSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(title: 'Peso sollevato'),
+        Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextFormField(
+              controller: _weightController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Peso sollevato (kg)',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                prefixIcon: const Icon(Icons.monitor_weight),
+                suffixText: 'kg',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                errorText: _weightError,
               ),
-              Radio<String>(
-                value: value,
-                groupValue: groupValue,
-                onChanged: onChanged,
-                activeColor: color,
-              ),
-            ],
+              onChanged: (value) {
+                if (_weightError != null) {
+                  setState(() {
+                    _weightError = null;
+                  });
+                }
+              },
+            ),
           ),
         ),
+      ],
+    );
+  }
+
+  /// Builds the repetitions selection section.
+  Widget _buildRepetitionsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(
+          title: 'Per quante ripetizioni hai sollevato il peso che hai scritto sopra?'
+        ),
+        Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                labelText: 'Seleziona il n. di ripetizioni',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                prefixIcon: const Icon(Icons.fitness_center),
+                errorText: _rmError,
+              ),
+              value: _rm,
+              items: AppConstants.rmOptions.map((rm) {
+                return DropdownMenuItem(
+                  value: rm,
+                  child: Text(rm),
+                );
+              }).toList(),
+              onChanged: (value) => setState(() {
+                _rm = value;
+                _rmError = null;
+              }),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the calculate button.
+  Widget _buildCalculateButton() {
+    return ElevatedButton.icon(
+      onPressed: _calculateAndShowResults,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
+      icon: const Icon(Icons.calculate),
+      label: const Text(
+        'Calcola Pesi di Allenamento',
+        style: TextStyle(fontSize: 16),
+      ),
+    );
+  }
+
+  /// Builds the button to return to the home screen.
+  Widget _buildHomeButton(BuildContext context) {
+    return TextButton.icon(
+      onPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SharedScaffold(
+              body: MyHomePageContent(),
+              title: 'Manage One',
+              currentIndex: 0,
+            ),
+          ),
+        );
+      },
+      icon: const Icon(Icons.arrow_back),
+      label: const Text('Torna alla Home'),
     );
   }
 }
