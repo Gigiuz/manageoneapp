@@ -22,7 +22,7 @@ class _TdeePageState extends State<TdeePage> {
   };
 
   final Map<String, String> activityDescriptions = {
-    'Sedentario': 'stile di vita sedentario, senza esercizio fisico regolare',
+    'Sedentario': '1 - 3 allenamenti a settimana',
     'Leggermente attivo': '3 - 5 allenamenti a settimana',
     'Attivo': '5 - 7 allenamenti a settimana',
     'Molto attivo': '10 - 12 allenamenti a settimana',
