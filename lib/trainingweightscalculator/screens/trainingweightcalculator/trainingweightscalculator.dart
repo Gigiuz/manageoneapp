@@ -3,6 +3,8 @@ import 'package:manageoneapp/utils/assets.dart';
 import 'package:manageoneapp/main.dart';
 
 // Import the extracted components
+import '../../widgets/WeightInputSection.dart';
+import '../../widgets/repetitions_Section.dart';
 import '../../widgets/section_title.dart';
 import '../../widgets/training_option.dart';
 import '../../widgets/weight_calculation_service.dart';
@@ -24,10 +26,13 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
   String? _typeTrainingError;
   String? _rm;
   String? _rmError;
+  bool _isStreetlifting = false;
   
   // Controller for the weight input field
   final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _bodyWeightController = TextEditingController();
   String? _weightError;
+    String? _bodyWeightError;
   
   // Global key for form validation
   final _formKey = GlobalKey<FormState>();
@@ -35,6 +40,7 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
   @override
   void dispose() {
     _weightController.dispose();
+    _bodyWeightController.dispose();
     super.dispose();
   }
 
@@ -65,6 +71,22 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
         isValid = false;
       }
     }
+
+        // Validate bodyWweight
+    if (_bodyWeightController.text.isEmpty && _isStreetlifting) {
+      setState(() {
+        _bodyWeightError = AppConstants.errorEnterBodyWeight;
+      });
+      isValid = false;
+    } else if(_isStreetlifting){
+      final number = double.tryParse(_bodyWeightController.text);
+      if (number == null || number <= 0) {
+        setState(() {
+          _bodyWeightError = AppConstants.errorEnterValidNumber;
+        });
+        isValid = false;
+      }
+    }
     
     // Validate RM selection
     if (_rm == null) {
@@ -82,7 +104,7 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
     if (_validateFields()) {
       final weight = double.parse(_weightController.text);
       
-      // Calculate training weights based on input
+      //calculate training weights based on input
       final results = WeightCalculationService.calculateTrainingWeights(
         weight: weight,
         rmType: _rm!,
@@ -109,12 +131,37 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeader(context),
-                _buildTrainingTypeSection(),
+                _buildHeader(context),     
+                 _buildTrainingTypeSection(),           
                 const SizedBox(height: 24),
-                _buildWeightInputSection(),
+                InputSection(sectionTitle: 'Peso sollevato', labelText: 'Peso sollevato (kg)', controller: _weightController, errorText: _weightError, onChanged: (value) {
+                if (_weightError != null) {
+                  setState(() {
+                    _weightError = null;
+                  });
+                }}),
+                // _buildWeightInputSection(),
                 const SizedBox(height: 24),
-                _buildRepetitionsSection(),
+                RepetitionsSection(
+                  initialValue: _rm,
+                  errorText: _rmError,
+                  onRmChanged: (value) {
+                    setState(() {
+                      _rm = value;
+                      _rmError = null;
+                    });
+                  },
+                ),
+                const SizedBox(height: 24),               
+                if(_isStreetlifting)
+                  InputSection(sectionTitle: 'Peso corporeo', labelText: 'Peso corporeo (kg)', controller: _bodyWeightController, errorText: _bodyWeightError, onChanged: (value) {
+                if (_bodyWeightError != null) {
+                  setState(() {
+                    _bodyWeightError = null;
+                  });
+                }}),
+                if(_isStreetlifting)
+                  const SizedBox(height: 24),
                 const SizedBox(height: 32),
                 _buildCalculateButton(),
                 const SizedBox(height: 24),
@@ -172,6 +219,7 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
               onChanged: (value) => setState(() {
                 _typeTraining = value;
                 _typeTrainingError = null;
+                _isStreetlifting = true;
               }),
             ),
             const SizedBox(width: 16),
@@ -184,6 +232,7 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
               onChanged: (value) => setState(() {
                 _typeTraining = value;
                 _typeTrainingError = null;
+                 _isStreetlifting = false;
               }),
             ),
           ],
@@ -237,49 +286,6 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
                   });
                 }
               },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the repetitions selection section.
-  Widget _buildRepetitionsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SectionTitle(
-          title: 'Per quante ripetizioni hai sollevato il peso che hai scritto sopra?'
-        ),
-        Card(
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: 'Seleziona il n. di ripetizioni',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.fitness_center),
-                errorText: _rmError,
-              ),
-              value: _rm,
-              items: AppConstants.rmOptions.map((rm) {
-                return DropdownMenuItem(
-                  value: rm,
-                  child: Text(rm),
-                );
-              }).toList(),
-              onChanged: (value) => setState(() {
-                _rm = value;
-                _rmError = null;
-              }),
             ),
           ),
         ),
