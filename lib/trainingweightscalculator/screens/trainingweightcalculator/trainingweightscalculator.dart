@@ -32,7 +32,7 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _bodyWeightController = TextEditingController();
   String? _weightError;
-    String? _bodyWeightError;
+  String? _bodyWeightError;
   
   // Global key for form validation
   final _formKey = GlobalKey<FormState>();
@@ -103,11 +103,14 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
   void _calculateAndShowResults() {
     if (_validateFields()) {
       final weight = double.parse(_weightController.text);
+       final bodyWweight = double.parse(_bodyWeightController.text);
       
       //calculate training weights based on input
       final results = WeightCalculationService.calculateTrainingWeights(
         weight: weight,
         rmType: _rm!,
+        isStreetlifting: _isStreetlifting,
+        bodyWweight:bodyWweight
       );
       
       // Show results dialog
@@ -252,47 +255,6 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
     );
   }
 
-  /// Builds the weight input section.
-  Widget _buildWeightInputSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SectionTitle(title: 'Peso sollevato'),
-        Card(
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextFormField(
-              controller: _weightController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Peso sollevato (kg)',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.monitor_weight),
-                suffixText: 'kg',
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                errorText: _weightError,
-              ),
-              onChanged: (value) {
-                if (_weightError != null) {
-                  setState(() {
-                    _weightError = null;
-                  });
-                }
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   /// Builds the calculate button.
   Widget _buildCalculateButton() {
     return ElevatedButton.icon(
@@ -305,7 +267,7 @@ class _TrainingWeightCalculatorState extends State<TrainingWeightCalculator> {
       ),
       icon: const Icon(Icons.calculate),
       label: const Text(
-        'Calcola Pesi di Allenamento',
+        'Calcola percentuali',
         style: TextStyle(fontSize: 16),
       ),
     );
