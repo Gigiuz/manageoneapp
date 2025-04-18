@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'tdee/screens/tdee/tdee_screen.dart';
-// Importa le altre pagine quando saranno disponibili
 import 'trainingweightscalculator/screens/trainingweightcalculator/trainingweightscalculator.dart';
-// import 'pages/nutrition.dart';
-// import 'pages/workout.dart';
-// import 'pages/settings.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -122,9 +119,7 @@ class SharedScaffold extends StatelessWidget {
             Icons.settings,
             5,
             () {
-              // Sostituire con la navigazione alla pagina impostazioni quando disponibile
               Navigator.pop(context);
-              // _navigateToPage(context, const SettingsPage(), 'Impostazioni', 5);
             },
           ),
         ],
